@@ -1,0 +1,28 @@
+﻿@model Application.Dtos.SalidaValidadoDataPredictorDto
+
+@{
+    ViewData["Title"] = "Resultado Regresión Lineal";
+}
+
+<div class="container py-5">
+    <h3>Regresión Lineal</h3>
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <strong>Pendiente (m):</strong> @Model.RegressionSlope
+        </div>
+        <div class="col-md-4">
+            <strong>Intercepto (b):</strong> @Model.RegressionIntercept
+        </div>
+        <div class="col-md-4">
+            <strong>Predicción día @((Model.Items.Count) + 1):</strong> @Model.PredictedValue
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <strong>Tendencia estimada:</strong> @Model.Trend
+        </div>
+    </div>
+    <div class="mt-4">
+        <a asp-action="Index" class="btn btn-outline-primary">Nueva Predicción</a>
+    </div>
+</div>

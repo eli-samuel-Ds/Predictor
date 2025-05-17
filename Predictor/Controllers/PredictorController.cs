@@ -1,4 +1,5 @@
 ﻿using Application.Dtos;
+using Application.Enums;
 using Application.Services;
 using Application.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -44,14 +45,29 @@ namespace Predictor.Controllers
 
             _svc.Save(dto, selector);
 
-            return RedirectToAction(nameof(ResultadoSMA));
+            return RedirectToAction(nameof(Result));
         }
 
         [HttpGet]
-        public IActionResult ResultadoSMA()
+        public IActionResult Result()
         {
             var dto = _svc.GetAll();
-            return View(dto);
+            var selector = _selSvc.Get().Opcion;
+
+            if (selector == PredictorType.sma)
+            {
+                return View("ResultadoSMA", dto);
+            }
+            else if (selector == PredictorType.regresionLineal)
+            {
+                return View("ResultRegresion", dto);
+            }
+            else if (selector == PredictorType.roc)
+            {
+                return View("ResultRoc", dto);
+            }
+            return View("ResultSma", dto);
         }
+
     }
 }

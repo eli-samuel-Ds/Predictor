@@ -6,6 +6,11 @@
 
         public decimal SMAShort { get; set; }
         public decimal SMALong { get; set; }
+
+        public decimal RegressionSlope { get; set; } 
+        public decimal RegressionIntercept { get; set; } 
+        public decimal PredictedValue { get; set; }
+
         public string Trend { get; set; } = string.Empty;
     }
 }
