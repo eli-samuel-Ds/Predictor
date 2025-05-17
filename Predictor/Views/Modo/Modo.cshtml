@@ -1,0 +1,59 @@
+﻿@model Application.ViewModels.SelectorPredictorViewModel
+@using Application.Enums               
+@{
+    ViewData["Title"] = "Modo Home";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            <div class="card mx-auto" style="max-width: 400px;">
+                <div class="card-header bg-primary text-white text-center">
+                    Modo A Elegir
+                </div>
+                <div class="card-body">
+                    <form asp-controller="Modo" asp-action="Modo" method="post">
+                        <div class="form-check mb-3">
+                            <input asp-for="OpcionSelector"
+                                   class="form-check-input"
+                                   type="radio"
+                                   id="sma"
+                                   value="sma" />
+                            <label class="form-check-label ms-2" for="sma">
+                                Media Móvil Simple (SMA)
+                            </label>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input asp-for="OpcionSelector"
+                                   class="form-check-input"
+                                   type="radio"
+                                   id="regresionLineal"
+                                   value="regresionLineal" />
+                            <label class="form-check-label ms-2" for="regresionLineal">
+                                Regresión Lineal
+                            </label>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input asp-for="OpcionSelector"
+                                   class="form-check-input"
+                                   type="radio"
+                                   id="roc"
+                                   value="roc" />
+                            <label class="form-check-label ms-2" for="roc">
+                                Momentum (ROC)
+                            </label>
+                        </div>
+
+                        <span asp-validation-for="OpcionSelector" class="text-danger"></span>
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                Guardar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
