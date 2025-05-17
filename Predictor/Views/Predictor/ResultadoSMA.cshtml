@@ -1,0 +1,27 @@
+﻿@model Application.Dtos.SalidaValidadoDataPredictorDto
+
+@{
+    ViewData["Title"] = "Resultado de Predicción";
+}
+
+<div class="container py-5">
+    <h3 class="mb-4">Resultado SMA Crossover</h3>
+
+    <div class="row">
+        <div class="col-md-4">
+            <strong>SMA Corta (5):</strong> @Model.SMAShort
+        </div>
+        <div class="col-md-4">
+            <strong>SMA Larga (20):</strong> @Model.SMALong
+        </div>
+        <div class="col-md-4">
+            <strong>Tendencia:</strong> @Model.Trend
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a asp-action="Index" class="btn btn-outline-primary">
+            Nueva Predicción
+        </a>
+    </div>
+</div>
