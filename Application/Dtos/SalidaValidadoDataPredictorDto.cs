@@ -11,6 +11,7 @@
         public decimal RegressionIntercept { get; set; } 
         public decimal PredictedValue { get; set; }
 
+        public List<decimal?> RocValues { get; set; } = new();
         public string Trend { get; set; } = string.Empty;
     }
 }

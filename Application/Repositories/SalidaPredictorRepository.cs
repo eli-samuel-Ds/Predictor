@@ -8,7 +8,8 @@ namespace Application.Repositories
         {
             ListvalidadoDataPredictor = new SalidaValidadoDataPredictorDto
             {
-                Items = new List<DataPredictorDto>()
+                Items = new List<DataPredictorDto>(),
+                RocValues = new List<decimal?>()
             };
         }
 

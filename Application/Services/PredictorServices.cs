@@ -1,4 +1,6 @@
-﻿using Application.Dtos;
+﻿using System;
+using System.Linq;
+using Application.Dtos;
 using Application.Enums;
 using Application.Repositories;
 
@@ -6,63 +8,83 @@ namespace Application.Services
 {
     public class PredictorServices
     {
-        private readonly SalidaPredictorRepository _repo = SalidaPredictorRepository.Instance;
-        public void Save(SalidaValidadoDataPredictorDto dto, SelectorPredictorDto selector)
+        private readonly SalidaPredictorRepository _repository = SalidaPredictorRepository.Instance;
+
+        public void Save(SalidaValidadoDataPredictorDto dataDto, SelectorPredictorDto selectorDto)
         {
-            switch (selector.Opcion)
+            switch (selectorDto.Opcion)
             {
                 case PredictorType.sma:
-                    var last20 = dto.Items.TakeLast(20).Select(x => x.Valor).ToList();
-                    var last5 = last20.TakeLast(5).ToList();
-
-                    dto.SMAShort = Math.Round(last5.Average(), 4);
-                    dto.SMALong = Math.Round(last20.Average(), 4);
-
-                    dto.Trend = dto.SMAShort > dto.SMALong
-                                ? "Tendencia alcista"
-                                : (dto.SMAShort < dto.SMALong
-                                    ? "Tendencia bajista"
-                                    : "Sin cruce (estática)");
-
-                    _repo.ListvalidadoDataPredictor = dto;
+                    ApplySma(dataDto);
                     break;
 
                 case PredictorType.regresionLineal:
-                    int n = dto.Items.Count;
-
-                    var xVals = Enumerable.Range(1, n).Select(i => (decimal)i).ToList();
-                    var yVals = dto.Items.Select(d => d.Valor).ToList();
-
-                    decimal sumX = xVals.Sum();
-                    decimal sumY = yVals.Sum();
-                    decimal sumXY = xVals.Zip(yVals, (x, y) => x * y).Sum();
-                    decimal sumX2 = xVals.Select(x => x * x).Sum();
-
-                    decimal m = (sumXY - (sumX * sumY) / n)
-                                / (sumX2 - (sumX * sumX) / n);
-                    decimal b = (sumY / n) - m * (sumX / n);
-
-                    decimal xPred = n + 1;
-                    decimal yPred = m * xPred + b;
-
-                    dto.PredictedValue = Math.Round(yPred, 4);
-                    dto.RegressionSlope = Math.Round(m, 4);
-                    dto.RegressionIntercept = Math.Round(b, 4);
-                    dto.Trend = yPred > yVals.Last()
-                                ? "Tendencia alcista"
-                                : "Tendencia bajista";
-
-                    _repo.ListvalidadoDataPredictor = dto;
+                    ApplyRegression(dataDto);
                     break;
 
                 case PredictorType.roc:
-                    break;
-                default:
+                    ApplyRoc(dataDto, period: 5);
                     break;
             }
+
+            _repository.ListvalidadoDataPredictor = dataDto;
         }
 
+        private static void ApplySma(SalidaValidadoDataPredictorDto dto)
+        {
+            var values = dto.Items.Select(item => item.Valor).ToList();
+            var longWindow = values.TakeLast(20).ToList();
+            var shortWindow = longWindow.TakeLast(5).ToList();
+
+            dto.SMALong = Math.Round(longWindow.Average(), 4);
+            dto.SMAShort = Math.Round(shortWindow.Average(), 4);
+            dto.Trend = dto.SMAShort.CompareTo(dto.SMALong) switch
+            {
+                > 0 => "Tendencia alcista",
+                < 0 => "Tendencia bajista",
+                _ => "Sin cruce (estática)"
+            };
+        }
+
+        private static void ApplyRegression(SalidaValidadoDataPredictorDto dto)
+        {
+            int n = dto.Items.Count;
+            var xSeq = Enumerable.Range(1, n).Select(i => (decimal)i);
+            var ySeq = dto.Items.Select(d => d.Valor);
+
+            var sumX = xSeq.Sum();
+            var sumY = ySeq.Sum();
+            var sumXY = xSeq.Zip(ySeq, (x, y) => x * y).Sum();
+            var sumX2 = xSeq.Select(x => x * x).Sum();
+
+            var m = (sumXY - sumX * sumY / n) / (sumX2 - sumX * sumX / n);
+            var b = sumY / n - m * (sumX / n);
+            var forecast = m * (n + 1) + b;
+
+            dto.RegressionSlope = Math.Round(m, 4);
+            dto.RegressionIntercept = Math.Round(b, 4);
+            dto.PredictedValue = Math.Round(forecast, 4);
+            dto.Trend = forecast > dto.Items.Last().Valor
+                                      ? "Tendencia alcista"
+                                      : "Tendencia bajista";
+        }
+
+        private static void ApplyRoc(SalidaValidadoDataPredictorDto dto, int period)
+        {
+            var prices = dto.Items.Select(d => d.Valor).ToList();
+            var prefix = Enumerable.Repeat<decimal?>(null, period);
+            var rocList = prices
+                .Skip(period)
+                .Select((current, idx) => (decimal?)Math.Round(((current / prices[idx]) - 1) * 100, 4));
+
+            dto.RocValues = prefix.Concat(rocList).ToList();
+
+            var lastRoc = dto.RocValues.LastOrDefault();
+            dto.Trend = lastRoc > 0
+                        ? "Tendencia alcista"
+                        : "Tendencia bajista";
+        }
         public SalidaValidadoDataPredictorDto GetAll()
-            => _repo.ListvalidadoDataPredictor;
+            => _repository.ListvalidadoDataPredictor;
     }
 }
