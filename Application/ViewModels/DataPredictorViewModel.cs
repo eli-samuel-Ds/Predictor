@@ -9,6 +9,7 @@ namespace Application.ViewModels
         public DateTime Fecha { get; set; }
 
         [Required(ErrorMessage = "Campo obligatorio")]
+        [Range(0.0000000001, double.MaxValue, ErrorMessage = "Dato debe ser mayor que cero")]
         public decimal Valor { get; set; }
     }
 }
