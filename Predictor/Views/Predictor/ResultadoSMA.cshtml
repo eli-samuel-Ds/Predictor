@@ -5,23 +5,42 @@
 }
 
 <div class="container py-5">
-    <h3 class="mb-4">Resultado SMA Crossover</h3>
+    <div class="text-center mb-5">
+        <h2 class="display-5">Resultado SMA Crossover</h2>
+    </div>
 
-    <div class="row">
+    <div class="row g-4">
         <div class="col-md-4">
-            <strong>SMA Corta (5):</strong> @Model.SMAShort
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">SMA Corta (5)</h5>
+                    <p class="card-text display-6">@Model.SMAShort</p>
+                </div>
+            </div>
         </div>
+
         <div class="col-md-4">
-            <strong>SMA Larga (20):</strong> @Model.SMALong
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">SMA Larga (20)</h5>
+                    <p class="card-text display-6">@Model.SMALong</p>
+                </div>
+            </div>
         </div>
+
         <div class="col-md-4">
-            <strong>Tendencia:</strong> @Model.Trend
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Tendencia</h5>
+                    <p class="card-text display-6">@Model.Trend</p>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="mt-4">
-        <a asp-action="Index" class="btn btn-outline-primary">
-            Nueva Predicción
+    <div class="text-center mt-5">
+        <a asp-action="Index" class="btn btn-outline-primary btn-lg shadow-sm">
+            <i class="bi bi-arrow-counterclockwise me-2"></i> Nueva Predicción
         </a>
     </div>
 </div>
