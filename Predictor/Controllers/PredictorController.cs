@@ -17,9 +17,9 @@ namespace Predictor.Controllers
             _selSvc = new SelectorPredictorServices();
         }
 
+        // GET Index
         public IActionResult Index()
         {
-            var selectorDto = _selSvc.Get();
             var vm = new ValidadoDataPredictorViewModel();
             return View(vm);
         }
@@ -27,9 +27,11 @@ namespace Predictor.Controllers
         [HttpPost]
         public IActionResult Index(ValidadoDataPredictorViewModel vm)
         {
+            // Si hay errores de validación en el ViewModel, vuelves a Index(vm)
             if (!ModelState.IsValid)
                 return View(vm);
 
+            // Mapeo al DTO
             var dto = new SalidaValidadoDataPredictorDto
             {
                 Items = vm.Items
@@ -40,34 +42,38 @@ namespace Predictor.Controllers
                           })
                           .ToList()
             };
-
             var selector = _selSvc.Get();
 
+            // Guardamos y redirigimos a Result pasando mensaje de éxito
             _svc.Save(dto, selector);
-
-            return RedirectToAction(nameof(Result));
+            return RedirectToRoute(new
+            {
+                controller = "Predictor",
+                action = "Result",
+                message = "¡Operación realizada correctamente!",
+                messageType = "alert-success"
+            });
         }
 
+        // GET Result
         [HttpGet]
-        public IActionResult Result()
+        public IActionResult Result(string message = null, string messageType = null)
         {
+            // Solo se mostrará en la vista si viene por query
+            ViewBag.Message = message;
+            ViewBag.MessageType = messageType;
+
             var dto = _svc.GetAll();
             var selector = _selSvc.Get().Opcion;
 
             if (selector == PredictorType.sma)
-            {
                 return View("ResultadoSMA", dto);
-            }
-            else if (selector == PredictorType.regresionLineal)
-            {
+            if (selector == PredictorType.regresionLineal)
                 return View("ResultRegresion", dto);
-            }
-            else if (selector == PredictorType.roc)
-            {
+            if (selector == PredictorType.roc)
                 return View("ResultRoc", dto);
-            }
+
             return View("ResultSma", dto);
         }
-
     }
 }
